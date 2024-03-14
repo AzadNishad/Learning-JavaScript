@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors Multiplayer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .choices {
+            margin-bottom: 20px;
+        }
+
+        .choice {
+            cursor: pointer;
+            font-size: 60px;
+            background: none;
+            border: none;
+            transition: ease-in-out;
+        }
+
+        .choice:nth-child(2) {
+            margin: 50px;
+        }
+
+        .choice:hover {
+            text-shadow: 1px 1px 5px;
+        }
+
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Rock Paper Scissors</h1>
+        <div id="playerInfo"></div>
+        <div id="gameResult"></div>
+        <div id="choices">
+            <button class="choice" id="rock">✊</button>
+            <button class="choice" id="paper">🖐️</button>
+            <button class="choice" id="scissors">✌️</button>
+        </div>
+        <p>You are : <span id="yourName"></span></p>
+        <br>
+        <p>Your opponent is: <span id="opponentName"></span></p>
+        <br>
+        <div id="result"></div>
+    </div>
+
+    <script src="client.js"></script>
+</body>
+
+</html>
