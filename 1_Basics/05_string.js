@@ -23,7 +23,7 @@ let example3 = `I think you are fine`
     let str3 =  str2 + " Kaise hain app sabhi"
     // console.log(str3) // output : Namuste Bharat! Kaise hain app sabhi
 
-// 2nd way :
+// 2nd way :  String Interpoltioon ~ modern way
 
     let str4 = "Hello Sonu,"
     let str5 = `${str4} kaise ho tum?` // we access ${} with only backticks (``)  **imp
