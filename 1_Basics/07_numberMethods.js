@@ -92,4 +92,76 @@ let numStr1 = "Hello India"
 
 /******************************************************************************************************* */
 
-// parseInt 
+// parseInt : parseInt() parses a string and returns a whole number. Spaces are allowed. Only the first number is returned
+//            parseInt is a global function and not a method of any object.
+
+// console.log(parseInt("10")) // Output : 10
+// console.log(parseInt("10.33")) // Output : 10
+// console.log(parseInt("10 20 30")) // Output : 10
+// console.log(parseInt("10 years")) // Output : 10
+// console.log(parseInt("years 10")) // Output : NaN
+// console.log(parseInt("10,20,30")) // Output : 10
+// console.log(parseInt("10.20.30")) // Output : 10
+// console.log(parseInt("-10.33")) // Output : -10
+// console.log(parseInt("  10  ")) // Output : 10
+
+/******************************************************************************************************* */
+
+// parseFloat : parseFloat() parses a string and returns a number. Spaces are allowed. Only the first number is returned
+
+// console.log(parseFloat("10")) // Output : 10
+// console.log(parseFloat("100.31")) // Output : 100.31
+// console.log(parseFloat("10 30 54 78")) // Output : 10
+// console.log(parseFloat("10 Mountain")) // Output : 10
+// console.log(parseFloat("Mountain 10")) // Output : NaN
+// console.log(parseFloat("10.20.30")) // Output : 10.20
+// console.log(parseFloat("-10.33")) // Output : -10.33
+// console.log(parseFloat("  10  ")) // Output : 10
+
+
+/******************************************************************************************************* */
+
+// Number.isInteger() : it returns true if the number is an integer, and false if not.
+
+// console.log(Number.isInteger(10)) // Output : true
+// console.log(Number.isInteger(10.33)) // Output : false
+// console.log(Number.isInteger(10/3)) // Output : false
+// console.log(Number.isInteger(10/2)) // Output : true
+// console.log(Number.isInteger("10")) // Output : false
+
+/******************************************************************************************************* */
+
+// Number.isSafeInteger() : it returns true if the number is a safe integer, and false if not.
+
+// console.log(Number.isSafeInteger(10)) // Output : true
+// console.log(Number.isSafeInteger(10.33)) // Output : false
+// console.log(Number.isSafeInteger(101548422154215)) // Output : true
+// console.log(Number.isSafeInteger(12345678901234567890)) // Output : false
+// console.log(Number.isSafeInteger("10")) // Output : false
+
+/******************************************************************************************************* */
+
+// Number.isNaN() : it returns true if the number is NaN (Not a Number), and false if not.
+
+// console.log(Number.isNaN(10)) // Output : false
+// console.log(Number.isNaN(10.33)) // Output : false
+// console.log(Number.isNaN("10")) // Output : false
+// console.log(Number.isNaN(NaN)) // Output : true
+// console.log(Number.isNaN("Hello")) // Output : false
+// console.log(Number.isNaN(0/0)) // Output : true
+
+/******************************************************************************************************* */
+
+// Number.isFinite() : it returns true if the number is a finite number, and false if not.
+
+// console.log(Number.isFinite(10)) // Output : true
+// console.log(Number.isFinite(10.33)) // Output : true
+// console.log(Number.isFinite("10")) // Output : false
+// console.log(Number.isFinite(NaN)) // Output : false
+// console.log(Number.isFinite("Hello")) // Output : false
+// console.log(Number.isFinite(0/0)) // Output : false
+// console.log(Number.isFinite(Infinity)) // Output : false
+
+/******************************************************************************************************* */
+
+
