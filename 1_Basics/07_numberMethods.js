@@ -10,15 +10,15 @@ const toStr2= num1.toString()
 // console.log(toStr2)
 // console.log(typeof toStr2)
 
-num1 = "1548n"
+num1 = "1548n" // already a string
 const toStr3= num1.toString()
 // console.log(toStr3)
 // console.log(typeof toStr3)
 
 num1 = NaN
-// console.log(num1)
-// console.log(num1.toString())
-// console.log(typeof num1.toString())
+// console.log(num1) // NaN 
+// console.log(num1.toString()) // NaN (string)
+// console.log(typeof num1.toString()) // string
 
 /******************************************************************************************************* */
 
@@ -40,7 +40,7 @@ let num2 = 154.564
 // console.log((-21.54).toFixed()) // output : -22
 // console.log((-21.54).toFixed(1)) // output : -21.5
 // console.log((-21.55).toFixed(1)) // output : -24.6
-// console.log(21.35.toFixed(1)) // output : -21.4
+// console.log(-21.35.toFixed(1)) // output : -21.4
 
 /******************************************************************************************************* */
 

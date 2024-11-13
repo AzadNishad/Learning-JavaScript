@@ -12,6 +12,7 @@ let str = "My name is Khan."
 /* .charAt() method : it works same as `.at()`. but it's old method insted of `.at()` */
 
 // console.log(str.charAt(6)) // output : e
+// do not acsept -ve numbers
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
@@ -40,7 +41,7 @@ let f = "!"
 /* .startWith() method : it returns `true` if string start with a specified string otherwise return `false` and it's a case sensitive */
 
 // console.log(str1.startsWith("What")) // output : true
-// console.log(str1.startsWith("what")) // output : flase (cause it's case sensitive)
+// console.log(str1.startsWith("what")) // output : flase (because it's case sensitive)
 // console.log(str1.startsWith("")) // output : true
 // console.log(str1.startsWith()) // output : flase
 
@@ -59,7 +60,7 @@ let f = "!"
                  returns true if the string contains the specified substring, and false otherwise. This method is case-sensitive. */
 
 // console.log(str.includes('My')) // output : true
-// console.log(str.includes('khan')) // output : false (case-sensitive)
+// console.log(str.includes('khan')) // output : false (*case-sensitive)
 // console.log(str.includes('Khan')) // output : true
 
 // -------------------------------------------------------------------------------------------------------------------------------
@@ -71,8 +72,8 @@ let f = "!"
 let text = "The code undefined code code";
 // console.log(text.indexOf("code")) // output: 4
 // console.log(text.indexOf("code",4)) // output: 4 (search start from index 4)
-// console.log(text.indexOf("code",6)) // output: 4 (search start from index 6 so it find code at 19 index at first)
-// console.log(text.indexOf("Code")) // output: -1 (cause it's case sensitive)
+// console.log(text.indexOf("code",6)) // output: 19 (search start from index 6 so it find code at 19 index at first)
+// console.log(text.indexOf("Code")) // output: -1 (because it's case sensitive)
 // console.log(text.indexOf("")) // output: 0
 // console.log(text.indexOf()) // output: 9 (no para returns undefined that's way indexOf search undefined at 9 index)
 
@@ -124,7 +125,7 @@ let newStr = str.repeat(5)
 
 let Str = "I love coding & coding"
 let replacedStr = Str.replace("coding", "programming")
-// 1st para is value which can be selected and 2nd para is value which is replaced
+// 1st para is value which will be selected and 2nd para is value which will be replaced
 // console.log(replacedStr) // Output: I love programming & coding (it replace only first value)
 
 // -------------------------------------------------------------------------------------------------------------------------------
@@ -168,7 +169,7 @@ let newTxt1 = txt.slice(11, 20) // 20 is a index position where the extraction o
 
 // -------------------------------------------------------------------------------------------------------------------------------
 
-/* .spit() method : it split string into an arraty of substring and return a new array and doesn't change the oringinal string */
+/* .spit() method : it split string into an array of substring and return a new array and doesn't change the oringinal string */
 
 const arr = txt.split("")
 // console.log(arr)
