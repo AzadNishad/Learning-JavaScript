@@ -1,4 +1,4 @@
-import puch from './puch.js'
+import puch from '../../libs/puch.js'
 
 // Create a do-while loop that shows a menu at least once and continues based on user choice.
 
