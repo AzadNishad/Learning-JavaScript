@@ -1,5 +1,5 @@
 // Password Generator: Generate random passwords with specific criteria using loops
-import puch from './../libs/puch.js'
+import puch from '../../libs/puch'
 
 async function generatePass() {
     const toBool = (val) => val.toLowerCase() === 'y';
