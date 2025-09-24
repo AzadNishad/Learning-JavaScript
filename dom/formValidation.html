@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            width: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+            font-weight: 500;
+            animation: shake 0.3s ease-in-out;
+        }
+        
+        .question {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .question h2 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .question p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .form-content {
+            padding: 40px;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        /* Cool floating animation */
+        .container {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        /* Input focus effects */
+        .form-group::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            opacity: 0;
+            z-index: -1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .form-group:focus-within::before {
+            opacity: 0.05;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="question">
+            <h2>✨ Task:</h2>
+            <p>Prevent form submission if any required field is empty and show an error message.</p>
+        </div>
+
+        <div class="form-content">
+            <form id="userForm">
+                <div class="form-group">
+                    <label for="name">👤 Name *</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name">
+                    <div class="error" id="nameError">Name is required</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">📧 Email *</label>
+                    <input type="email" id="email" name="email" placeholder="your@email.com">
+                    <div class="error" id="emailError">Email is required</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">📱 Phone *</label>
+                    <input type="tel" id="phone" name="phone"  placeholder="+1 (555) 123-4567">
+                    <div class="error" id="phoneError">Phone is required</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">💬 Message</label>
+                    <textarea id="message" name="message" rows="4" placeholder="Tell us what's on your mind..."></textarea>
+                </div>
+
+                <button type="submit">🚀 Submit Form</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Write your validation script here
+        let form = document.getElementById("userForm")
+        let name = document.getElementById("name")
+        let email = document.getElementById("email")
+        let phone = document.getElementById("phone")
+        let nameError = document.getElementById("nameError")
+        let emailError = document.getElementById("emailError")
+        let phoneError = document.getElementById("phoneError")
+
+        form.onsubmit = (event) => {
+            let valid = true
+            if (name.value.trim() == ''){
+                nameError.style.display = "block"
+                valid = false
+            } else {
+                nameError.style.display = "none"
+            }
+            if (email.value.trim() == ''){
+                emailError.style.display = "block"
+                valid = false
+            } else {
+                emailError.style.display = "none"
+            }
+            if (phone.value.trim() == ''){
+                phoneError.style.display = "block"
+                valid = false
+            } else {
+                phoneError.style.display = "none"
+            }
+
+            if(!valid) event.preventDefault()
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Manipulation Practice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        #item-list {
+            list-style-type: decimal;
+            margin: 10px 0;
+            padding-left: 30px;
+        }
+        
+        .list-item {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+        }
+        
+        #cngBG {
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: background-color 0.3s ease;
+        }
+        
+        #hideMe {
+            padding: 15px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        
+        #intro {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>DOM Manipulation Practice</h1>
+    
+    <!-- Q1: Change Text Content -->
+    <div class="container">
+        <h2>Question 1: Change Text Content</h2>
+        <p id="intro">Hello, World!</p>
+        <button id="change-text">Change Text</button>
+    </div>
+    
+    <!-- Q2: Change Background Color -->
+    <div class="container">
+        <h2>Question 2: Change Background Color</h2>
+        <div id="cngBG">
+            <p>This div's background will change to lime when you click the button below.</p>
+        </div>
+        <button id="change-bg">Change Background</button>
+    </div>
+    
+    <!-- Q3: Hide/Show Toggle -->
+    <div class="container">
+        <h2>Question 3: Hide/Show Toggle</h2>
+        <div id="hideMe">
+            <p>This content can be hidden or shown using the toggle button below.</p>
+        </div>
+        <button id="hide-toggle">Hide</button>
+    </div>
+    
+    <!-- Q4 & Q5: Add/Remove List Items -->
+    <div class="container">
+        <h2>Question 4 & 5: Add/Remove List Items</h2>
+        <ul id="item-list">
+            <!-- Items will be dynamically added here -->
+        </ul>
+        <button id="add-item">Add Item</button>
+        <button id="remove-item">Remove Item</button>
+    </div>
+
+    <!-- Q6: Change Image Source -->
+    <div class="container">
+        <h2>Question 6: Change Image Source</h2>
+        <img id="myImage" src="https://images.unsplash.com/photo-1741160479622-c011b9a25325?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Vegitable Man" class="image">
+        <br>
+        <button id="change-image">Change Image</button>
+    </div>
+    
+    <!-- Link to JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>
