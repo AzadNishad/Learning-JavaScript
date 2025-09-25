@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Table</title>
+  </head>
+  <body>
+    <h1>Dynamic Table</h1>
+
+    <form action="" id="myForm">
+      <input type="text" id="name" placeholder="Name" autofocus />
+      <input type="number" id="age" placeholder="Age" />
+      <input type="text" id="city" placeholder="City" />
+      <button type="submit">Add</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>City</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="tBody">
+        <!-- inserted rows here -->
+      </tbody>
+    </table>
+    <script>
+      const form = document.getElementById("myForm");
+      const tBody = document.getElementById("tBody");
+
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        const name = document.getElementById("name").value.trim();
+        const age = document.getElementById("age").value.trim();
+        const city = document.getElementById("city").value.trim();
+
+        if(!name || !age || !city) {
+          alert("Please fill in all fields.");
+          return;
+        }
+        let tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${name}</td>
+            <td>${age}</td>
+            <td>${city}</td>
+            <td><button class="delRow">Remove</button></td>
+        `;
+
+        tBody.appendChild(tr);
+        form.reset();
+      });
+
+      tBody.addEventListener("click", e =>{
+        if(e.target && e.target.classList.contains("delRow")){
+            e.preventDefault()
+            e.target.closest("tr").remove()
+        }
+      })
+     
+    </script>
+  </body>
+</html>

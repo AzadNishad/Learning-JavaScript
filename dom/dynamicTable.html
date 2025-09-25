@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dynamic Table</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background-image: url("./747846.jpg");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .main-container {
+        width: 100%;
+        max-width: 1000px;
+        background: rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(25px) saturate(1.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        margin-bottom: 8px;
+      }
+
+      .header p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 1.1rem;
+        font-weight: 400;
+      }
+
+      .form-section {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        padding: 32px;
+        margin-bottom: 32px;
+      }
+
+      .form-title {
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      .input-field {
+        position: relative;
+      }
+
+      .input-field input {
+        width: 100%;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        color: white;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .input-field input::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+      }
+
+      .input-field input:focus {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .add-btn {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(
+          135deg,
+          rgba(74, 144, 226, 0.4),
+          rgba(80, 200, 120, 0.4)
+        );
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .add-btn:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(74, 144, 226, 0.6),
+          rgba(80, 200, 120, 0.6)
+        );
+        transform: translateY(-3px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      }
+
+      .table-section {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 18px;
+        overflow: hidden;
+        margin-bottom: 24px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 20px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      td {
+        padding: 18px 20px;
+        color: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+      }
+
+      tbody tr {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      tbody tr:hover {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .remove-btn {
+        padding: 8px 16px;
+        background: linear-gradient(
+          135deg,
+          rgba(220, 53, 69, 0.4),
+          rgba(220, 38, 127, 0.4)
+        );
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        border-radius: 8px;
+        color: white;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .remove-btn:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(220, 53, 69, 0.6),
+          rgba(220, 38, 127, 0.6)
+        );
+        transform: scale(1.05);
+      }
+
+      .footer-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 20px 24px;
+      }
+
+      .clear-btn {
+        padding: 12px 24px;
+        background: linear-gradient(
+          135deg,
+          rgba(220, 53, 69, 0.3),
+          rgba(220, 38, 127, 0.3)
+        );
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .clear-btn:hover {
+        background: linear-gradient(
+          135deg,
+          rgba(220, 53, 69, 0.5),
+          rgba(220, 38, 127, 0.5)
+        );
+        transform: translateY(-2px);
+      }
+
+      .row-count {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        font-size: 1.1rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 1.1rem;
+      }
+
+      .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.3;
+      }
+
+      @media (max-width: 768px) {
+        .main-container {
+          padding: 24px;
+          margin: 10px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .input-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .footer-actions {
+          flex-direction: column;
+          gap: 16px;
+        }
+      }
+      .msg {
+        color: #ffcc00;
+        font-size: 1rem;
+        margin-top: 10px;
+        height: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="main-container">
+      <div class="header">
+        <h1>Dynamic Table</h1>
+        <p>Add, edit, and manage your data seamlessly</p>
+        <p id="formMessage" class="msg"></p>
+      </div>
+
+      <form id="form" class="form-section">
+        <div class="form-title">➕ Add New Entry</div>
+        <div class="input-grid">
+          <div class="input-field">
+            <input type="text" id="nameInput" placeholder="Full Name" autofocus />
+          </div>
+          <div class="input-field">
+            <input type="email" id="emailInput" placeholder="Email Address" />
+          </div>
+          <div class="input-field">
+            <input type="tel" id="phoneInput" placeholder="Phone Number" />
+          </div>
+        </div>
+        <button class="add-btn" type="submit" id="addRowBtn">Add Entry</button>
+      </form>
+
+      <div class="table-section">
+        <table id="dynamicTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr id="emptyRow">
+              <td colspan="4" class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div>
+                  No entries yet. Start by adding your first entry above!
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer-actions">
+        <button class="clear-btn" id="clearAllBtn">Clear All Data</button>
+        <span class="row-count" id="rowCount"></span>
+      </div>
+    </div>
+
+    <script>
+      // Your script goes here
+      let form = document.getElementById("form");
+      let tableBody = document.getElementById("tableBody");
+      let emptyRow = document.getElementById("emptyRow");
+      let rowCount = document.getElementById("rowCount");
+      let clearAllBtn = document.getElementById("clearAllBtn");
+      let formMessage = document.getElementById("formMessage");
+
+      function updateRowCount() {
+        // Exclude the emptyRow if present
+        let count = 0;
+        for (let row of tableBody.rows) {
+          if (row.id !== "emptyRow") count++;
+        }
+        rowCount.textContent = `Total entries: ${count}`;
+      }
+
+    function removeRow(btn) {
+      let row = btn.closest("tr");
+      row.remove();
+      // Show empty row if table is empty
+      if (tableBody.rows.length === 0) {
+        emptyRow.id = "emptyRow";
+        emptyRow.innerHTML = `
+        <td colspan="4" class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div>No entries yet. Start by adding your first entry above!</div>
+        </td>
+        `;
+        tableBody.appendChild(emptyRow);
+      }
+      updateRowCount();
+    }
+
+      form.onsubmit = (event) => {
+        event.preventDefault();
+        formMessage.textContent = "";
+        let name = document.getElementById("nameInput").value;
+        let email = document.getElementById("emailInput").value;
+        let phone = document.getElementById("phoneInput").value;
+        if (name.trim() == "" || email.trim() == "" || phone.trim() == "") {
+          formMessage.textContent = "All fields are required.";
+          return;
+        }
+
+        // Remove empty row if present
+        if (emptyRow) emptyRow.remove();
+
+        let row = document.createElement("tr");
+        row.innerHTML = `
+                <td>${name}</td>
+                <td>${email}</td>
+                <td>${phone}</td>
+                <td><button class="remove-btn" onclick="removeRow(this)">Remove</button></td>
+            `;
+
+        tableBody.appendChild(row);
+        updateRowCount();
+        form.reset();
+      };
+
+      // Initial row count update
+      updateRowCount();
+
+      // Optional: Clear all button functionality
+      clearAllBtn.onclick = function () {
+        tableBody.innerHTML = `<tr id="emptyRow">
+              <td colspan="4" class="empty-state">
+                <div class="empty-icon">📋</div>
+                <div>No entries yet. Start by adding your first entry above!</div>
+              </td>
+            </tr>`;
+        updateRowCount();
+      };
+    </script>
+    </script>
+  </body>
+</html>
