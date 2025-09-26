@@ -268,43 +268,43 @@
         updateStats();
       };
 
-        todoList.addEventListener("click", (e) => {
-            if (e.target.classList.contains("todo-checkbox")) {
-            e.target.classList.toggle("checked");
-            e.target.parentElement.classList.toggle("completed");
-            updateTaskCount();
-            } else if (e.target.classList.contains("delete-btn")) {
-            e.target.parentElement.remove();
-            updateTaskCount();
-            }
-        });
+      todoList.addEventListener("click", (e) => {
+        if (e.target.classList.contains("todo-checkbox")) {
+          e.target.classList.toggle("checked");
+          e.target.parentElement.classList.toggle("completed");
+          updateTaskCount();
+        } else if (e.target.classList.contains("delete-btn")) {
+          e.target.parentElement.remove();
+          updateTaskCount();
+        }
+      });
 
-    addtask.onclick = () => {
-      const input = todoInput.value.trim();
-      if (input == "") alert("Please enter a task");
-      else {
-        let task = document.createElement("li");
-        task.className = "todo-item";
-        task.innerHTML = `
+      addtask.onclick = () => {
+        const input = todoInput.value.trim();
+        if (input == "") alert("Please enter a task");
+        else {
+          let task = document.createElement("li");
+          task.className = "todo-item";
+          task.innerHTML = `
         <div class="todo-checkbox"></div>
         <span class="todo-text">${input}</span>
         <button class="delete-btn">Delete</button>
       `;
-        todoList.appendChild(task);
-        todoInput.value = "";
-        updateTaskCount();
-      }
-    };
+          todoList.appendChild(task);
+          todoInput.value = "";
+          updateTaskCount();
+        }
+      };
 
-    // Add Enter key support for input field
-    todoInput.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        addtask.click();
-      }
-    });
+      // Add Enter key support for input field
+      todoInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
+          addtask.click();
+        }
+      });
 
-    // Initialize stats on page load
-    updateTaskCount();
+      // Initialize stats on page load
+      updateTaskCount();
     </script>
   </body>
 </html>

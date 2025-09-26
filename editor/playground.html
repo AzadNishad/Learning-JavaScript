@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Playground</title>
+    <!-- CodeMirror library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/mdn-like.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/split.js@1.6.5/dist/split.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --bg-dark: #1e1e2e;
+            --bg-light: #f8fafc;
+            --text-dark: #18181b;
+            --text-light: #f1f5f9;
+            --border-dark: #334155;
+            --border-light: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            transition: background-color 0.3s, color 0.3s;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .playground {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: #fff;
+            border-bottom: 1px solid var(--border-light);
+            transition: background-color 0.3s;
+        }
+
+        .dark-mode .header {
+            background-color: #0f172a;
+            border-color: var(--border-dark);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .logo i {
+            font-size: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-dark);
+            border: 1px solid var(--border-light);
+        }
+
+        .dark-mode .btn-outline {
+            color: var(--text-light);
+            border-color: var(--border-dark);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+        }
+
+        .dark-mode .theme-toggle {
+            color: var(--text-light);
+        }
+
+        .theme-toggle:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .theme-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+        }
+
+        .dark-mode .sidebar {
+            background-color: #1e293b;
+            border-color: var(--border-dark);
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            border-right: none;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .sidebar-header {
+            border-color: var(--border-dark);
+        }
+
+        .sidebar-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            letter-spacing: 0.05em;
+        }
+
+        .dark-mode .sidebar-title {
+            color: var(--text-light);
+        }
+
+        .sidebar-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .sidebar-btn {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .dark-mode .sidebar-btn {
+            color: var(--text-light);
+        }
+
+        .sidebar-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .sidebar-btn:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-tree {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem 0;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            user-select: none;
+        }
+
+        .file-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .file-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .file-item.folder {
+            font-weight: 500;
+        }
+
+        .file-icon {
+            margin-right: 0.5rem;
+            width: 16px;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .file-name {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .file-actions {
+            opacity: 0;
+            display: flex;
+            gap: 0.25rem;
+            transition: opacity 0.2s;
+        }
+
+        .file-item:hover .file-actions {
+            opacity: 1;
+        }
+
+        .file-action {
+            background: none;
+            border: none;
+            padding: 0.125rem;
+            border-radius: 0.125rem;
+            color: var(--text-dark);
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .dark-mode .file-action {
+            color: var(--text-light);
+        }
+
+        .file-action:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .file-action:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* File tabs */
+        .file-tabs {
+            display: flex;
+            background-color: #fff;
+            border-bottom: 1px solid var(--border-light);
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .dark-mode .file-tabs {
+            background-color: #1e293b;
+            border-color: var(--border-dark);
+        }
+
+        .file-tab {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-right: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .dark-mode .file-tab {
+            border-color: var(--border-dark);
+        }
+
+        .file-tab:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .file-tab:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-tab.active {
+            background-color: var(--bg-light);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .dark-mode .file-tab.active {
+            background-color: var(--bg-dark);
+        }
+
+        .file-tab-icon {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .file-tab-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .file-tab-close {
+            margin-left: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text-dark);
+            cursor: pointer;
+            padding: 0.125rem;
+            border-radius: 0.125rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .dark-mode .file-tab-close {
+            color: var(--text-light);
+        }
+
+        .file-tab:hover .file-tab-close {
+            opacity: 1;
+        }
+
+        .file-tab-close:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .file-tab-close:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Sidebar toggle button */
+        .sidebar-toggle {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: all 0.2s;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Context menu */
+        .context-menu {
+            position: fixed;
+            background: white;
+            border: 1px solid var(--border-light);
+            border-radius: 0.375rem;
+            padding: 0.5rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+        }
+
+        .dark-mode .context-menu {
+            background: #1e293b;
+            border-color: var(--border-dark);
+        }
+
+        .context-menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s;
+        }
+
+        .context-menu-item:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .dark-mode .context-menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .context-menu-icon {
+            margin-right: 0.5rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .controls button span {
+                display: none;
+            }
+            
+            .controls button {
+                padding: 0.5rem;
+            }
+            
+            .file-tab {
+                min-width: 80px;
+                padding: 0.5rem;
+            }
+            
+            .file-tab-name {
+                font-size: 0.75rem;
+            }
+        }
+
+        .panel {
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-panel {
+            border-right: 1px solid var(--border-light);
+        }
+
+        .dark-mode .editor-panel {
+            border-color: var(--border-dark);
+        }
+
+        .tab-bar {
+            display: flex;
+            background-color: #fff;
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 0.5rem;
+        }
+
+        .dark-mode .tab-bar {
+            background-color: #1e293b;
+            border-color: var(--border-dark);
+        }
+
+        .tab {
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab:hover {
+            color: var(--primary);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .editors-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .editor-instance {
+            height: 100%;
+            display: none;
+        }
+
+        .editor-instance.active {
+            display: block;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .preview-panel {
+            background-color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .dark-mode .preview-panel {
+            background-color: #0f172a;
+        }
+
+        .preview-container {
+            height: 100%;
+        }
+
+        #preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+        }
+
+        .gutter {
+            background-color: #e2e8f0;
+            background-repeat: no-repeat;
+            background-position: 50%;
+        }
+
+        .dark-mode .gutter {
+            background-color: #334155;
+        }
+
+        .gutter.gutter-horizontal {
+            cursor: col-resize;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+        }
+
+        .gutter.gutter-vertical {
+            cursor: row-resize;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAFAQMAAABo7865AAAABlBMVEVHcEzMzMzyAv2sAAAAAXRSTlMAQObYZgAAABBJREFUeF5jOAMEEAIEEFwAn3kMwcB6I2AAAAAASUVORK5CYII=');
+        }
+
+        .console-panel {
+            height: 30%;
+            border-top: 1px solid var(--border-light);
+            background-color: #fff;
+            transition: background-color 0.3s;
+            display: none;
+        }
+
+        .dark-mode .console-panel {
+            background-color: #1e293b;
+            border-color: var(--border-dark);
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .dark-mode .console-header {
+            border-color: var(--border-dark);
+        }
+
+        .console-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .console-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .console-actions button {
+            background: none;
+            border: none;
+            padding: 0.25rem;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+
+        .dark-mode .console-actions button {
+            color: var(--text-light);
+        }
+
+        .console-output {
+            height: calc(100% - 2.5rem);
+            overflow: auto;
+            padding: 0.5rem 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+        }
+
+        .console-message {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .dark-mode .console-message {
+            border-color: var(--border-dark);
+        }
+
+        .console-message-type {
+            flex-shrink: 0;
+        }
+
+        .console-message-content {
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .console-log {
+            color: var(--text-dark);
+        }
+
+        .dark-mode .console-log {
+            color: var(--text-light);
+        }
+
+        .console-error {
+            color: var(--error);
+        }
+
+        .console-warn {
+            color: var(--warning);
+        }
+
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .settings-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode .modal-content {
+            background-color: #1e293b;
+            color: var(--text-light);
+        }
+
+        .modal-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dark-mode .modal-header {
+            border-color: var(--border-dark);
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .modal-footer {
+            padding: 1rem;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .dark-mode .modal-footer {
+            border-color: var(--border-dark);
+        }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .setting-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .keyboard-shortcuts {
+            border: 1px solid var(--border-light);
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+        }
+
+        .dark-mode .keyboard-shortcuts {
+            border-color: var(--border-dark);
+        }
+
+        .shortcut-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .dark-mode .shortcut-item {
+            border-color: var(--border-dark);
+        }
+
+        .shortcut-item:last-child {
+            border-bottom: none;
+        }
+
+        .key-combo {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .key {
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            border: 1px solid var(--border-light);
+        }
+
+        .dark-mode .key {
+            background-color: #334155;
+            color: var(--text-light);
+            border-color: var(--border-dark);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .toast.active {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Fullscreen mode */
+        .fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            z-index: 9999 !important;
+            background: var(--bg-light) !important;
+        }
+
+        .dark-mode .fullscreen {
+            background: var(--bg-dark) !important;
+        }
+
+        /* Responsive controls */
+        @media (max-width: 1200px) {
+            .controls {
+                gap: 0.5rem;
+            }
+            
+            .controls button span {
+                display: none;
+            }
+            
+            .controls button {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Font size indicator */
+        .font-size-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .font-size-indicator.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="playground">
+        <header class="header">
+            <div class="logo">
+                <i class="fas fa-code"></i>
+                <span>Web Playground</span>
+            </div>
+            <div class="controls">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="font-decrease" class="btn-outline" title="Decrease font size">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button id="font-increase" class="btn-outline" title="Increase font size">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button id="fullscreen-btn" class="btn-outline" title="Toggle fullscreen">
+                    <i class="fas fa-expand"></i>
+                    <span>Fullscreen</span>
+                </button>
+                <button id="format-btn" class="btn-outline" title="Format code">
+                    <i class="fas fa-code"></i>
+                    <span>Format</span>
+                </button>
+                <button id="export-btn" class="btn-outline" title="Export code">
+                    <i class="fas fa-download"></i>
+                    <span>Export</span>
+                </button>
+                <button id="refresh-btn" class="btn-outline" title="Refresh preview">
+                    <i class="fas fa-redo-alt"></i>
+                    <span>Refresh</span>
+                </button>
+                <button id="console-toggle-btn" class="btn-outline" title="Toggle console">
+                    <i class="fas fa-terminal"></i>
+                    <span>Console</span>
+                </button>
+                <button id="run-btn" class="btn-primary">
+                    <i class="fas fa-play"></i>
+                    <span>Run</span>
+                </button>
+                <button id="save-btn" class="btn-outline">
+                    <i class="fas fa-save"></i>
+                    <span>Save</span>
+                </button>
+                <button id="share-btn" class="btn-outline">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share</span>
+                </button>
+                <button id="settings-btn" class="btn-outline">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="main-container">
+            <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">Explorer</div>
+                    <div class="sidebar-actions">
+                        <button class="sidebar-btn" id="new-file-btn" title="New File">
+                            <i class="fas fa-file-plus"></i>
+                        </button>
+                        <button class="sidebar-btn" id="new-folder-btn" title="New Folder">
+                            <i class="fas fa-folder-plus"></i>
+                        </button>
+                        <button class="sidebar-btn" id="refresh-files-btn" title="Refresh">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="file-tree" id="file-tree">
+                    <!-- File tree will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="panel editor-panel" id="editor-panel">
+                <div class="file-tabs" id="file-tabs">
+                    <!-- File tabs will be populated by JavaScript -->
+                </div>
+                <div class="tab-bar">
+                    <div class="tab active" data-tab="html">
+                        <i class="fab fa-html5"></i>
+                        <span>HTML</span>
+                    </div>
+                    <div class="tab" data-tab="css">
+                        <i class="fab fa-css3-alt"></i>
+                        <span>CSS</span>
+                    </div>
+                    <div class="tab" data-tab="js">
+                        <i class="fab fa-js"></i>
+                        <span>JavaScript</span>
+                    </div>
+                </div>
+                <div class="editors-container">
+                    <div id="html-editor" class="editor-instance active"></div>
+                    <div id="css-editor" class="editor-instance"></div>
+                    <div id="js-editor" class="editor-instance"></div>
+                </div>
+            </div>
+
+            <div class="panel preview-panel" id="preview-panel">
+                <div class="preview-container">
+                    <iframe id="preview-frame"></iframe>
+                </div>
+                <div class="console-panel" id="console-panel">
+                    <div class="console-header">
+                        <div class="console-title">
+                            <i class="fas fa-terminal"></i>
+                            <span>Console</span>
+                        </div>
+                        <div class="console-actions">
+                            <button id="clear-console" title="Clear console">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                            <button id="toggle-console" title="Toggle console">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="console-output" id="console-output"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal" id="settings-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button id="close-settings" class="btn-outline">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <div class="setting-label">Theme</div>
+                    <div class="setting-option">
+                        <input type="radio" id="theme-light" name="theme" value="light" checked>
+                        <label for="theme-light">Light</label>
+                    </div>
+                    <div class="setting-option">
+                        <input type="radio" id="theme-dark" name="theme" value="dark">
+                        <label for="theme-dark">Dark</label>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-label">Editor Settings</div>
+                    <div class="setting-option">
+                        <input type="checkbox" id="auto-complete" checked>
+                        <label for="auto-complete">Enable Auto-complete</label>
+                    </div>
+                    <div class="setting-option">
+                        <input type="checkbox" id="line-numbers" checked>
+                        <label for="line-numbers">Show Line Numbers</label>
+                    </div>
+                    <div class="setting-option">
+                        <input type="checkbox" id="word-wrap" checked>
+                        <label for="word-wrap">Enable Word Wrap</label>
+                    </div>
+                    <div class="setting-option">
+                        <input type="checkbox" id="auto-save" checked>
+                        <label for="auto-save">Auto-save (5s)</label>
+                    </div>
+                    <div class="setting-option">
+                        <input type="checkbox" id="auto-run" checked>
+                        <label for="auto-run">Auto-run on Change</label>
+                    </div>
+                    <div class="setting-option">
+                        <label for="font-size-range">Font Size: <span id="font-size-display">15px</span></label>
+                        <input type="range" id="font-size-range" min="10" max="24" value="15" style="width: 100%; margin-top: 5px;">
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <div class="setting-label">Keyboard Shortcuts</div>
+                    <div class="keyboard-shortcuts">
+                        <div class="shortcut-item">
+                            <span>Run Code</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">Enter</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Refresh Preview</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">R</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Save</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">S</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Toggle Console</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">`</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Format Code</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">Shift</span>
+                                <span class="key">F</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Export Code</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">E</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Increase Font</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">=</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Decrease Font</span>
+                            <div class="key-combo">
+                                <span class="key">Ctrl</span>
+                                <span class="key">-</span>
+                            </div>
+                        </div>
+                        <div class="shortcut-item">
+                            <span>Fullscreen</span>
+                            <div class="key-combo">
+                                <span class="key">F11</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings" class="btn-primary">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" data-action="new-file">
+            <i class="fas fa-file-plus context-menu-icon"></i>
+            <span>New File</span>
+        </div>
+        <div class="context-menu-item" data-action="new-folder">
+            <i class="fas fa-folder-plus context-menu-icon"></i>
+            <span>New Folder</span>
+        </div>
+        <div class="context-menu-item" data-action="rename">
+            <i class="fas fa-edit context-menu-icon"></i>
+            <span>Rename</span>
+        </div>
+        <div class="context-menu-item" data-action="delete">
+            <i class="fas fa-trash context-menu-icon"></i>
+            <span>Delete</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/html-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/css-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/javascript-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/comment/comment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/split.js@1.6.5/dist/split.min.js"></script>
+
+    <script>
+        // DOM elements
+        const runBtn = document.getElementById('run-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const consoleToggleBtn = document.getElementById('console-toggle-btn');
+        const fontIncreaseBtn = document.getElementById('font-increase');
+        const fontDecreaseBtn = document.getElementById('font-decrease');
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const formatBtn = document.getElementById('format-btn');
+        const exportBtn = document.getElementById('export-btn');
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const fileTree = document.getElementById('file-tree');
+        const fileTabs = document.getElementById('file-tabs');
+        const newFileBtn = document.getElementById('new-file-btn');
+        const newFolderBtn = document.getElementById('new-folder-btn');
+        const refreshFilesBtn = document.getElementById('refresh-files-btn');
+        const contextMenu = document.getElementById('context-menu');
+        const tabs = document.querySelectorAll('.tab');
+        const previewFrame = document.getElementById('preview-frame');
+        const consoleOutput = document.getElementById('console-output');
+        const clearConsoleBtn = document.getElementById('clear-console');
+        const toggleConsoleBtn = document.getElementById('toggle-console');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsBtn = document.getElementById('close-settings');
+        const saveSettingsBtn = document.getElementById('save-settings');
+        const toast = document.getElementById('toast');
+        const consolePanel = document.getElementById('console-panel');
+
+        // Editor instances
+        let editors = {
+            html: null,
+            css: null,
+            js: null
+        };
+
+        // Project system
+        let projectFiles = {
+            'index.html': {
+                type: 'html',
+                content: '',
+                icon: 'fab fa-html5',
+                color: '#e34c26'
+            },
+            'style.css': {
+                type: 'css',
+                content: '',
+                icon: 'fab fa-css3-alt',
+                color: '#1572b6'
+            },
+            'script.js': {
+                type: 'js',
+                content: '',
+                icon: 'fab fa-js',
+                color: '#f7df1e'
+            }
+        };
+
+        let currentFile = 'index.html';
+        let openTabs = ['index.html', 'style.css', 'script.js'];
+        let fileEditors = {};
+
+        // Current active tab
+        let currentTab = 'html';
+
+        // Settings
+        let settings = {
+            theme: 'light',
+            autoComplete: true,
+            lineNumbers: true,
+            autoSave: true,
+            autoRun: true,
+            wordWrap: true,
+            fontSize: 15
+        };
+
+        // Load saved settings
+        const savedSettings = localStorage.getItem('webPlaygroundSettings');
+        if (savedSettings) {
+            settings = JSON.parse(savedSettings);
+            applySettings();
+        }
+
+        // Initialize editors
+        function initEditors() {
+            // HTML Editor
+            editors.html = CodeMirror(document.getElementById('html-editor'), {
+                mode: 'htmlmixed',
+                theme: settings.theme === 'dark' ? 'dracula' : 'mdn-like',
+                lineNumbers: settings.lineNumbers,
+                autoCloseTags: true,
+                autoCloseBrackets: true,
+                lineWrapping: settings.wordWrap,
+                extraKeys: { 'Ctrl-Space': 'autocomplete' }
+            });
+
+            // CSS Editor
+            editors.css = CodeMirror(document.getElementById('css-editor'), {
+                mode: 'css',
+                theme: settings.theme === 'dark' ? 'dracula' : 'mdn-like',
+                lineNumbers: settings.lineNumbers,
+                autoCloseBrackets: true,
+                lineWrapping: settings.wordWrap,
+                extraKeys: { 'Ctrl-Space': 'autocomplete' }
+            });
+
+            // JavaScript Editor
+            editors.js = CodeMirror(document.getElementById('js-editor'), {
+                mode: 'javascript',
+                theme: settings.theme === 'dark' ? 'dracula' : 'mdn-like',
+                lineNumbers: settings.lineNumbers,
+                autoCloseBrackets: true,
+                lineWrapping: settings.wordWrap,
+                extraKeys: { 'Ctrl-Space': 'autocomplete' }
+            });
+
+            // Load saved content
+            const savedContent = localStorage.getItem('webPlaygroundContent');
+            if (savedContent) {
+                const content = JSON.parse(savedContent);
+                editors.html.setValue(content.html || '');
+                editors.css.setValue(content.css || '');
+                editors.js.setValue(content.js || '');
+            }
+
+            // Set up change events
+            const debouncedUpdate = debounce(function() {
+                if (settings.autoSave) {
+                    saveContent();
+                }
+                if (settings.autoRun) {
+                    updatePreview();
+                }
+            }, 1000);
+
+            editors.html.on('change', debouncedUpdate);
+            editors.css.on('change', debouncedUpdate);
+            editors.js.on('change', debouncedUpdate);
+        }
+
+        // Initialize Split.js for resizable panels
+        function initSplitPanels() {
+            Split(['#editor-panel', '#preview-panel'], {
+                sizes: [60, 40],
+                minSize: 300,
+                gutterSize: 8,
+                cursor: 'col-resize'
+            });
+        }
+
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                const tabName = tab.getAttribute('data-tab');
+                document.querySelectorAll('.editor-instance').forEach(editor => {
+                    editor.classList.remove('active');
+                });
+                document.getElementById(`${tabName}-editor`).classList.add('active');
+                
+                currentTab = tabName;
+                editors[currentTab].refresh();
+                editors[currentTab].focus();
+            });
+        });
+
+        // Update preview
+        function updatePreview() {
+            const html = projectFiles['index.html']?.content || '';
+            const css = projectFiles['style.css']?.content || '';
+            const js = projectFiles['script.js']?.content || '';
+            
+            // Prepare console interceptor
+            const consoleInterceptor = `
+                <script>
+                    (function() {
+                        const originalConsole = window.console;
+                        window.console = {
+                            log: function(...args) {
+                                originalConsole.log(...args);
+                                window.parent.postMessage({type: 'log', args: args}, '*');
+                            },
+                            error: function(...args) {
+                                originalConsole.error(...args);
+                                window.parent.postMessage({type: 'error', args: args}, '*');
+                            },
+                            warn: function(...args) {
+                                originalConsole.warn(...args);
+                                window.parent.postMessage({type: 'warn', args: args}, '*');
+                            },
+                            info: function(...args) {
+                                originalConsole.info(...args);
+                                window.parent.postMessage({type: 'info', args: args}, '*');
+                            }
+                        };
+
+                        window.addEventListener('error', function(e) {
+                            window.parent.postMessage({
+                                type: 'error',
+                                args: [e.message + ' at line ' + e.lineno + ' in ' + e.filename]
+                            }, '*');
+                        });
+                    })();
+                <\/script>
+            `;
+            
+            const content = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>${css}</style>
+                    ${consoleInterceptor}
+                </head>
+                <body>
+                    ${html}
+                    <script>${js}<\/script>
+                </body>
+                </html>
+            `;
+            
+            const blob = new Blob([content], { type: 'text/html' });
+            previewFrame.src = URL.createObjectURL(blob);
+            
+            // Show console if there's JavaScript
+            if (js.trim() !== '') {
+                consolePanel.style.display = 'block';
+            }
+        }
+
+        // Handle console messages
+        window.addEventListener('message', function(e) {
+            const data = e.data;
+            
+            if (data && data.type) {
+                const message = document.createElement('div');
+                message.className = `console-message console-${data.type}`;
+                
+                const icon = document.createElement('span');
+                icon.className = 'console-message-type';
+                
+                switch (data.type) {
+                    case 'error':
+                        icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+                        break;
+                    case 'warn':
+                        icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                        break;
+                    case 'info':
+                        icon.innerHTML = '<i class="fas fa-info-circle"></i>';
+                        break;
+                    default:
+                        icon.innerHTML = '<i class="fas fa-angle-right"></i>';
+                }
+                
+                const content = document.createElement('div');
+                content.className = 'console-message-content';
+                
+                try {
+                    content.textContent = data.args.map(arg => {
+                        if (typeof arg === 'object') {
+                            return JSON.stringify(arg);
+                        }
+                        return String(arg);
+                    }).join(' ');
+                } catch (err) {
+                    content.textContent = 'Error formatting console output';
+                }
+                
+                message.appendChild(icon);
+                message.appendChild(content);
+                consoleOutput.appendChild(message);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+        });
+
+        // Save content to localStorage
+        function saveContent() {
+            // This is now handled by saveProjectFiles() in the file system
+            saveProjectFiles();
+        }
+
+        // Run button
+        runBtn.addEventListener('click', function() {
+            clearConsoleOutput();
+            updatePreview();
+            showToast('Running code...');
+        });
+
+        // Refresh button
+        refreshBtn.addEventListener('click', function() {
+            clearConsoleOutput();
+            updatePreview();
+            showToast('Preview refreshed');
+        });
+
+        // Console toggle button (header)
+        consoleToggleBtn.addEventListener('click', function() {
+            const isVisible = consolePanel.style.display !== 'none';
+            if (isVisible) {
+                consolePanel.style.display = 'none';
+                consoleToggleBtn.innerHTML = '<i class="fas fa-terminal"></i><span>Console</span>';
+                consoleToggleBtn.title = 'Show console';
+            } else {
+                consolePanel.style.display = 'block';
+                consoleToggleBtn.innerHTML = '<i class="fas fa-terminal"></i><span>Hide Console</span>';
+                consoleToggleBtn.title = 'Hide console';
+            }
+        });
+
+        // Font size controls
+        fontIncreaseBtn.addEventListener('click', function() {
+            if (settings.fontSize < 24) {
+                settings.fontSize += 1;
+                updateFontSize();
+                showFontSizeIndicator();
+                localStorage.setItem('webPlaygroundSettings', JSON.stringify(settings));
+            }
+        });
+
+        fontDecreaseBtn.addEventListener('click', function() {
+            if (settings.fontSize > 10) {
+                settings.fontSize -= 1;
+                updateFontSize();
+                showFontSizeIndicator();
+                localStorage.setItem('webPlaygroundSettings', JSON.stringify(settings));
+            }
+        });
+
+        // Fullscreen toggle
+        fullscreenBtn.addEventListener('click', function() {
+            const playground = document.querySelector('.playground');
+            
+            if (!document.fullscreenElement) {
+                playground.requestFullscreen().then(() => {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i><span>Exit Fullscreen</span>';
+                    playground.classList.add('fullscreen');
+                }).catch(() => {
+                    showToast('Fullscreen not supported', 'error');
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i><span>Fullscreen</span>';
+                    playground.classList.remove('fullscreen');
+                });
+            }
+        });
+
+        // Format code button
+        formatBtn.addEventListener('click', function() {
+            formatCurrentCode();
+        });
+
+        // Export button
+        exportBtn.addEventListener('click', function() {
+            exportCode();
+        });
+
+        // Sidebar toggle
+        sidebarToggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            sidebarToggleBtn.innerHTML = isCollapsed ? 
+                '<i class="fas fa-chevron-right"></i>' : 
+                '<i class="fas fa-chevron-left"></i>';
+        });
+
+        // File management buttons
+        newFileBtn.addEventListener('click', () => createNewFile());
+        newFolderBtn.addEventListener('click', () => showToast('Folders coming soon!', 'info'));
+        refreshFilesBtn.addEventListener('click', () => {
+            renderFileTree();
+            renderFileTabs();
+            showToast('Files refreshed');
+        });
+
+        // Context menu
+        contextMenu.addEventListener('click', (e) => {
+            const action = e.target.closest('.context-menu-item')?.dataset.action;
+            const fileName = contextMenu.dataset.fileName;
+            
+            if (action && fileName) {
+                switch (action) {
+                    case 'new-file':
+                        createNewFile();
+                        break;
+                    case 'rename':
+                        renameFile(fileName);
+                        break;
+                    case 'delete':
+                        deleteFile(fileName);
+                        break;
+                }
+            }
+            
+            hideContextMenu();
+        });
+
+        // Hide context menu when clicking elsewhere
+        document.addEventListener('click', (e) => {
+            if (!contextMenu.contains(e.target)) {
+                hideContextMenu();
+            }
+        });
+
+        // Save button
+        saveBtn.addEventListener('click', function() {
+            saveContent();
+            showToast('Code saved');
+        });
+
+        // Share button
+        shareBtn.addEventListener('click', function() {
+            const content = {
+                html: projectFiles['index.html']?.content || '',
+                css: projectFiles['style.css']?.content || '',
+                js: projectFiles['script.js']?.content || ''
+            };
+            
+            const jsonData = JSON.stringify(content);
+            const encodedData = btoa(jsonData);
+            const url = `${window.location.href.split('?')[0]}?code=${encodedData}`;
+            
+            navigator.clipboard.writeText(url)
+                .then(() => showToast('Shareable link copied to clipboard!'))
+                .catch(() => showToast('Failed to copy link.', 'error'));
+        });
+
+        // Settings button
+        settingsBtn.addEventListener('click', function() {
+            settingsModal.classList.add('active');
+            document.getElementById(`theme-${settings.theme}`).checked = true;
+            document.getElementById('auto-complete').checked = settings.autoComplete;
+            document.getElementById('line-numbers').checked = settings.lineNumbers;
+            document.getElementById('word-wrap').checked = settings.wordWrap;
+            document.getElementById('auto-save').checked = settings.autoSave;
+            document.getElementById('auto-run').checked = settings.autoRun;
+            document.getElementById('font-size-range').value = settings.fontSize;
+            document.getElementById('font-size-display').textContent = `${settings.fontSize}px`;
+            
+            // Font size range event listener
+            const fontSizeRange = document.getElementById('font-size-range');
+            const fontSizeDisplay = document.getElementById('font-size-display');
+            
+            fontSizeRange.addEventListener('input', function() {
+                fontSizeDisplay.textContent = `${this.value}px`;
+            });
+        });
+
+        // Close settings
+        closeSettingsBtn.addEventListener('click', function() {
+            settingsModal.classList.remove('active');
+        });
+
+        // Save settings
+        saveSettingsBtn.addEventListener('click', function() {
+            settings.theme = document.querySelector('input[name="theme"]:checked').value;
+            settings.autoComplete = document.getElementById('auto-complete').checked;
+            settings.lineNumbers = document.getElementById('line-numbers').checked;
+            settings.wordWrap = document.getElementById('word-wrap').checked;
+            settings.autoSave = document.getElementById('auto-save').checked;
+            settings.autoRun = document.getElementById('auto-run').checked;
+            settings.fontSize = parseInt(document.getElementById('font-size-range').value);
+            
+            localStorage.setItem('webPlaygroundSettings', JSON.stringify(settings));
+            applySettings();
+            settingsModal.classList.remove('active');
+            showToast('Settings saved');
+        });
+
+        // Apply settings
+        function applySettings() {
+            // Theme
+            if (settings.theme === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                if (editors.html) {
+                    Object.values(editors).forEach(editor => {
+                        editor.setOption('theme', 'dracula');
+                    });
+                }
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                if (editors.html) {
+                    Object.values(editors).forEach(editor => {
+                        editor.setOption('theme', 'mdn-like');
+                    });
+                }
+            }
+            
+            // Line numbers
+            if (editors.html) {
+                Object.values(editors).forEach(editor => {
+                    editor.setOption('lineNumbers', settings.lineNumbers);
+                    editor.setOption('lineWrapping', settings.wordWrap);
+                });
+                updateFontSize();
+            }
+        }
+
+        // Update font size
+        function updateFontSize() {
+            const style = document.createElement('style');
+            style.textContent = `
+                .CodeMirror {
+                    font-size: ${settings.fontSize}px !important;
+                }
+            `;
+            
+            // Remove existing font size style if it exists
+            const existingStyle = document.querySelector('#font-size-style');
+            if (existingStyle) {
+                existingStyle.remove();
+            }
+            
+            style.id = 'font-size-style';
+            document.head.appendChild(style);
+            
+            // Refresh all editors
+            Object.values(editors).forEach(editor => {
+                if (editor) editor.refresh();
+            });
+        }
+
+        // Show font size indicator
+        function showFontSizeIndicator() {
+            let indicator = document.querySelector('.font-size-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.className = 'font-size-indicator';
+                document.body.appendChild(indicator);
+            }
+            
+            indicator.textContent = `Font Size: ${settings.fontSize}px`;
+            indicator.classList.add('visible');
+            
+            setTimeout(() => {
+                indicator.classList.remove('visible');
+            }, 1500);
+        }
+
+        // Format current code
+        function formatCurrentCode() {
+            if (!currentFile || !fileEditors[currentFile]) {
+                showToast('No file selected', 'error');
+                return;
+            }
+            
+            const editor = fileEditors[currentFile];
+            const code = editor.getValue();
+            const file = projectFiles[currentFile];
+            
+            try {
+                let formattedCode = code;
+                
+                if (file.type === 'htmlmixed') {
+                    // Basic HTML formatting
+                    formattedCode = formatHTML(code);
+                } else if (file.type === 'css') {
+                    // Basic CSS formatting
+                    formattedCode = formatCSS(code);
+                } else if (file.type === 'javascript') {
+                    // Basic JS formatting
+                    formattedCode = formatJS(code);
+                }
+                
+                editor.setValue(formattedCode);
+                showToast('Code formatted');
+            } catch (error) {
+                showToast('Error formatting code', 'error');
+            }
+        }
+
+        // Basic HTML formatter
+        function formatHTML(html) {
+            let formatted = html;
+            // Add basic indentation
+            let indent = 0;
+            const tab = '  ';
+            
+            formatted = formatted.replace(/></g, '>\n<');
+            const lines = formatted.split('\n');
+            
+            return lines.map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return '';
+                
+                if (trimmed.startsWith('</')) {
+                    indent = Math.max(0, indent - 1);
+                }
+                
+                const result = tab.repeat(indent) + trimmed;
+                
+                if (trimmed.startsWith('<') && !trimmed.startsWith('</') && !trimmed.endsWith('/>')) {
+                    indent += 1;
+                }
+                
+                return result;
+            }).join('\n');
+        }
+
+        // Basic CSS formatter
+        function formatCSS(css) {
+            return css
+                .replace(/\s*{\s*/g, ' {\n  ')
+                .replace(/;\s*/g, ';\n  ')
+                .replace(/\s*}\s*/g, '\n}\n\n')
+                .replace(/,\s*/g, ',\n')
+                .trim();
+        }
+
+        // Basic JS formatter
+        function formatJS(js) {
+            return js
+                .replace(/\s*{\s*/g, ' {\n  ')
+                .replace(/;\s*/g, ';\n  ')
+                .replace(/\s*}\s*/g, '\n}\n\n')
+                .replace(/,\s*/g, ', ')
+                .trim();
+        }
+
+        // Export code functionality
+        function exportCode() {
+            const html = projectFiles['index.html']?.content || '';
+            const css = projectFiles['style.css']?.content || '';
+            const js = projectFiles['script.js']?.content || '';
+            
+            const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exported from Web Playground</title>
+    <style>
+${css}
+    </style>
+</head>
+<body>
+${html}
+    <script>
+${js}
+    <\/script>
+</body>
+</html>`;
+            
+            // Create and download file
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'playground-export.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Code exported as HTML file');
+        }
+
+        // File system functions
+        function getFileIcon(fileName) {
+            const ext = fileName.split('.').pop().toLowerCase();
+            const iconMap = {
+                'html': { icon: 'fab fa-html5', color: '#e34c26' },
+                'css': { icon: 'fab fa-css3-alt', color: '#1572b6' },
+                'js': { icon: 'fab fa-js', color: '#f7df1e' },
+                'json': { icon: 'fas fa-brackets-curly', color: '#cbcb41' },
+                'md': { icon: 'fab fa-markdown', color: '#083fa1' },
+                'txt': { icon: 'fas fa-file-alt', color: '#6c757d' },
+                'default': { icon: 'fas fa-file', color: '#6c757d' }
+            };
+            return iconMap[ext] || iconMap.default;
+        }
+
+        function renderFileTree() {
+            fileTree.innerHTML = '';
+            
+            Object.keys(projectFiles).forEach(fileName => {
+                const file = projectFiles[fileName];
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.dataset.fileName = fileName;
+                
+                if (fileName === currentFile) {
+                    fileItem.classList.add('active');
+                }
+                
+                const icon = getFileIcon(fileName);
+                fileItem.innerHTML = `
+                    <i class="file-icon ${icon.icon}" style="color: ${icon.color}"></i>
+                    <span class="file-name">${fileName}</span>
+                    <div class="file-actions">
+                        <button class="file-action" data-action="rename" title="Rename">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="file-action" data-action="delete" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                
+                fileItem.addEventListener('click', (e) => {
+                    if (!e.target.closest('.file-actions')) {
+                        openFile(fileName);
+                    }
+                });
+                
+                fileItem.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    showContextMenu(e, fileName);
+                });
+                
+                fileTree.appendChild(fileItem);
+            });
+        }
+
+        function renderFileTabs() {
+            fileTabs.innerHTML = '';
+            
+            openTabs.forEach(fileName => {
+                const tab = document.createElement('div');
+                tab.className = 'file-tab';
+                tab.dataset.fileName = fileName;
+                
+                if (fileName === currentFile) {
+                    tab.classList.add('active');
+                }
+                
+                const icon = getFileIcon(fileName);
+                tab.innerHTML = `
+                    <i class="file-tab-icon ${icon.icon}" style="color: ${icon.color}"></i>
+                    <span class="file-tab-name">${fileName}</span>
+                    <button class="file-tab-close" title="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                tab.addEventListener('click', (e) => {
+                    if (!e.target.closest('.file-tab-close')) {
+                        openFile(fileName);
+                    }
+                });
+                
+                tab.querySelector('.file-tab-close').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeFile(fileName);
+                });
+                
+                fileTabs.appendChild(tab);
+            });
+        }
+
+        function openFile(fileName) {
+            if (!projectFiles[fileName]) return;
+            
+            // Add to open tabs if not already open
+            if (!openTabs.includes(fileName)) {
+                openTabs.push(fileName);
+            }
+            
+            // Set as current file
+            currentFile = fileName;
+            
+            // Create editor if it doesn't exist
+            if (!fileEditors[fileName]) {
+                const editorContainer = document.createElement('div');
+                editorContainer.className = 'editor-instance';
+                editorContainer.id = `editor-${fileName.replace(/\./g, '-')}`;
+                document.querySelector('.editors-container').appendChild(editorContainer);
+                
+                const file = projectFiles[fileName];
+                fileEditors[fileName] = CodeMirror(editorContainer, {
+                    mode: file.type === 'html' ? 'htmlmixed' : file.type,
+                    theme: settings.theme === 'dark' ? 'dracula' : 'mdn-like',
+                    lineNumbers: settings.lineNumbers,
+                    lineWrapping: settings.wordWrap,
+                    autoCloseTags: file.type === 'html',
+                    autoCloseBrackets: true,
+                    extraKeys: { 'Ctrl-Space': 'autocomplete' }
+                });
+                
+                fileEditors[fileName].setValue(file.content);
+                
+                fileEditors[fileName].on('change', () => {
+                    projectFiles[fileName].content = fileEditors[fileName].getValue();
+                    saveProjectFiles();
+                    if (settings.autoRun) {
+                        updatePreview();
+                    }
+                });
+            }
+            
+            // Show the editor and hide others
+            document.querySelectorAll('.editor-instance').forEach(editor => {
+                editor.style.display = 'none';
+            });
+            document.getElementById(`editor-${fileName.replace(/\./g, '-')}`).style.display = 'block';
+            
+            fileEditors[fileName].refresh();
+            fileEditors[fileName].focus();
+            
+            // Update UI
+            renderFileTree();
+            renderFileTabs();
+        }
+
+        function closeFile(fileName) {
+            const index = openTabs.indexOf(fileName);
+            if (index > -1) {
+                openTabs.splice(index, 1);
+                
+                // Remove editor
+                if (fileEditors[fileName]) {
+                    document.getElementById(`editor-${fileName.replace(/\./g, '-')}`).remove();
+                    delete fileEditors[fileName];
+                }
+                
+                // If this was the current file, switch to another
+                if (currentFile === fileName) {
+                    if (openTabs.length > 0) {
+                        openFile(openTabs[0]);
+                    } else {
+                        currentFile = null;
+                    }
+                }
+                
+                renderFileTabs();
+                renderFileTree();
+            }
+        }
+
+        function createNewFile(name = null) {
+            const fileName = name || prompt('Enter file name:', 'new-file.txt');
+            if (!fileName) return;
+            
+            if (projectFiles[fileName]) {
+                showToast('File already exists', 'error');
+                return;
+            }
+            
+            const ext = fileName.split('.').pop().toLowerCase();
+            let type = 'text';
+            if (ext === 'html') type = 'htmlmixed';
+            if (ext === 'css') type = 'css';
+            if (ext === 'js') type = 'javascript';
+            
+            projectFiles[fileName] = {
+                type: type,
+                content: '',
+                icon: getFileIcon(fileName).icon,
+                color: getFileIcon(fileName).color
+            };
+            
+            saveProjectFiles();
+            renderFileTree();
+            openFile(fileName);
+            showToast(`Created ${fileName}`);
+        }
+
+        function deleteFile(fileName) {
+            if (confirm(`Are you sure you want to delete ${fileName}?`)) {
+                delete projectFiles[fileName];
+                closeFile(fileName);
+                saveProjectFiles();
+                renderFileTree();
+                showToast(`Deleted ${fileName}`);
+            }
+        }
+
+        function renameFile(oldName) {
+            const newName = prompt('Enter new name:', oldName);
+            if (!newName || newName === oldName) return;
+            
+            if (projectFiles[newName]) {
+                showToast('File already exists', 'error');
+                return;
+            }
+            
+            projectFiles[newName] = projectFiles[oldName];
+            delete projectFiles[oldName];
+            
+            // Update open tabs
+            const tabIndex = openTabs.indexOf(oldName);
+            if (tabIndex > -1) {
+                openTabs[tabIndex] = newName;
+            }
+            
+            // Update current file
+            if (currentFile === oldName) {
+                currentFile = newName;
+            }
+            
+            // Update editor
+            if (fileEditors[oldName]) {
+                fileEditors[newName] = fileEditors[oldName];
+                delete fileEditors[oldName];
+                
+                const editorElement = document.getElementById(`editor-${oldName.replace(/\./g, '-')}`);
+                if (editorElement) {
+                    editorElement.id = `editor-${newName.replace(/\./g, '-')}`;
+                }
+            }
+            
+            saveProjectFiles();
+            renderFileTree();
+            renderFileTabs();
+            showToast(`Renamed to ${newName}`);
+        }
+
+        function saveProjectFiles() {
+            localStorage.setItem('webPlaygroundFiles', JSON.stringify(projectFiles));
+            localStorage.setItem('webPlaygroundOpenTabs', JSON.stringify(openTabs));
+            localStorage.setItem('webPlaygroundCurrentFile', currentFile);
+        }
+
+        function loadProjectFiles() {
+            const savedFiles = localStorage.getItem('webPlaygroundFiles');
+            const savedTabs = localStorage.getItem('webPlaygroundOpenTabs');
+            const savedCurrentFile = localStorage.getItem('webPlaygroundCurrentFile');
+            
+            if (savedFiles) {
+                projectFiles = JSON.parse(savedFiles);
+            }
+            
+            if (savedTabs) {
+                openTabs = JSON.parse(savedTabs);
+            }
+            
+            if (savedCurrentFile && projectFiles[savedCurrentFile]) {
+                currentFile = savedCurrentFile;
+            }
+        }
+
+        function showContextMenu(e, fileName) {
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.pageX + 'px';
+            contextMenu.style.top = e.pageY + 'px';
+            contextMenu.dataset.fileName = fileName;
+        }
+
+        function hideContextMenu() {
+            contextMenu.style.display = 'none';
+        }
+
+        // Toggle theme
+        themeToggle.addEventListener('click', function() {
+            settings.theme = settings.theme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('webPlaygroundSettings', JSON.stringify(settings));
+            applySettings();
+        });
+
+        // Toggle console
+        toggleConsoleBtn.addEventListener('click', function() {
+            if (consolePanel.style.height === '30%') {
+                consolePanel.style.height = '0';
+                toggleConsoleBtn.innerHTML = '<i class="fas fa-chevron-up"></i>';
+            } else {
+                consolePanel.style.height = '30%';
+                toggleConsoleBtn.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            }
+        });
+
+        // Clear console
+        clearConsoleBtn.addEventListener('click', clearConsoleOutput);
+
+        function clearConsoleOutput() {
+            consoleOutput.innerHTML = '';
+        }
+
+        // Show toast
+        function showToast(message, type = 'success') {
+            toast.textContent = message;
+            toast.className = `toast active ${type}`;
+            
+            setTimeout(function() {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function() {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+
+        // Check for shared code
+        function loadSharedCode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedCode = urlParams.get('code');
+            
+            if (sharedCode) {
+                try {
+                    const decodedData = atob(sharedCode);
+                    const content = JSON.parse(decodedData);
+                    
+                    editors.html.setValue(content.html || '');
+                    editors.css.setValue(content.css || '');
+                    editors.js.setValue(content.js || '');
+                    
+                    updatePreview();
+                    showToast('Shared code loaded');
+                } catch (e) {
+                    showToast('Invalid shared code', 'error');
+                }
+            }
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Run: Ctrl+Enter
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runBtn.click();
+            }
+            
+            // Refresh: Ctrl+R
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                refreshBtn.click();
+            }
+            
+            // Save: Ctrl+S
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveBtn.click();
+            }
+            
+            // Toggle console: Ctrl+`
+            if (e.ctrlKey && e.key === '`') {
+                e.preventDefault();
+                consoleToggleBtn.click();
+            }
+            
+            // Format code: Ctrl+Shift+F
+            if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+                e.preventDefault();
+                formatBtn.click();
+            }
+            
+            // Export: Ctrl+E
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportBtn.click();
+            }
+            
+            // Font size increase: Ctrl+=
+            if (e.ctrlKey && e.key === '=') {
+                e.preventDefault();
+                fontIncreaseBtn.click();
+            }
+            
+            // Font size decrease: Ctrl+-
+            if (e.ctrlKey && e.key === '-') {
+                e.preventDefault();
+                fontDecreaseBtn.click();
+            }
+            
+            // Fullscreen: F11
+            if (e.key === 'F11') {
+                e.preventDefault();
+                fullscreenBtn.click();
+            }
+        });
+
+        // Initialize
+        loadProjectFiles();
+        initEditors();
+        initSplitPanels();
+        renderFileTree();
+        renderFileTabs();
+        
+        // Open the current file or first available file
+        if (currentFile && projectFiles[currentFile]) {
+            openFile(currentFile);
+        } else if (Object.keys(projectFiles).length > 0) {
+            openFile(Object.keys(projectFiles)[0]);
+        }
+        
+        setTimeout(loadSharedCode, 100);
+        
+        // Handle fullscreen changes
+        document.addEventListener('fullscreenchange', function() {
+            const playground = document.querySelector('.playground');
+            if (!document.fullscreenElement) {
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i><span>Fullscreen</span>';
+                playground.classList.remove('fullscreen');
+            }
+        });
+    </script>
+</body>
+</html>

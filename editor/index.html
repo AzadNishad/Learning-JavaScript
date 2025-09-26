@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Playground - VS Code Inspired</title>
+    
+    <!-- External Libraries -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/monokai.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/eclipse.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/dracula.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/theme/material.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/show-hint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/lint/lint.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/fold/foldgutter.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-dark">
+    <div class="playground">
+        <!-- Activity Bar -->
+        <div class="activity-bar">
+            <div class="activity-items">
+                <div class="activity-item active" data-panel="explorer" title="Explorer">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <div class="activity-item" data-panel="search" title="Search">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="activity-item" data-panel="git" title="Source Control">
+                    <i class="fas fa-code-branch"></i>
+                </div>
+                <div class="activity-item" data-panel="extensions" title="Extensions">
+                    <i class="fas fa-th-large"></i>
+                </div>
+            </div>
+            <div class="activity-bottom">
+                <div class="activity-item" data-action="settings" title="Settings">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="activity-item" data-action="theme-toggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">EXPLORER</div>
+                <div class="sidebar-actions">
+                    <button class="sidebar-action" data-action="new-file" title="New File">
+                        <i class="fas fa-file-plus"></i>
+                    </button>
+                    <button class="sidebar-action" data-action="new-folder" title="New Folder">
+                        <i class="fas fa-folder-plus"></i>
+                    </button>
+                    <button class="sidebar-action" data-action="refresh" title="Refresh">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="file-tree">
+                <div class="project-folder">
+                    <div class="folder-header">
+                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-folder-open"></i>
+                        <span>PROJECT</span>
+                    </div>
+                    <div class="folder-content" id="file-list">
+                        <!-- Files will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Menu Bar -->
+            <div class="menu-bar">
+                <div class="menu-left">
+                    <div class="app-name">
+                        <i class="fas fa-code"></i>
+                        Code Playground
+                    </div>
+                </div>
+                <div class="menu-center">
+                    <!-- File tabs will go here -->
+                </div>
+                <div class="menu-right">
+                    <button class="menu-button" data-action="search-files" title="Search Files (Ctrl+P)">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="menu-button" data-action="command-palette" title="Command Palette (Ctrl+Shift+P)">
+                        <i class="fas fa-terminal"></i>
+                    </button>
+                    <button class="menu-button" data-action="zen-mode" title="Zen Mode (F11)">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </button>
+                    <button class="menu-button" data-action="split-editor" title="Split Editor">
+                        <i class="fas fa-columns"></i>
+                    </button>
+                    <button class="menu-button" data-action="run" title="Run Code (Ctrl+F5)">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="menu-button" data-action="save" title="Save (Ctrl+S)">
+                        <i class="fas fa-save"></i>
+                    </button>
+                    <button class="menu-button" data-action="library-manager" title="Manage Libraries">
+                        <i class="fas fa-cube"></i>
+                    </button>
+                    <button class="menu-button" data-action="export" title="Export">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="menu-button" data-action="fullscreen" title="Fullscreen (F11)">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Container -->
+            <div class="editor-container">
+                <!-- Tab Bar -->
+                <div class="tab-bar" id="tab-bar">
+                    <!-- Tabs will be rendered here -->
+                </div>
+
+                <!-- Breadcrumbs -->
+                <div id="breadcrumbs" class="breadcrumbs" style="display: none;">
+                    <i class="fas fa-folder-open"></i>
+                    <span class="breadcrumb-item active" id="breadcrumb-file">
+                        <i class="fas fa-file-code"></i>
+                        <span>No file selected</span>
+                    </span>
+                </div>
+
+                <!-- Editor Area -->
+                <div class="editor-area">
+                    <div class="editor-wrapper" id="editor-wrapper">
+                        <!-- Welcome Screen -->
+                        <div class="welcome-screen" id="welcome-screen">
+                            <div class="welcome-content">
+                                <h1><i class="fas fa-code"></i> Code Playground</h1>
+                                <p>A modern VS Code-inspired web playground for HTML, CSS, and JavaScript</p>
+                                
+                                <div class="welcome-actions">
+                                    <button class="welcome-button primary" data-action="new-project">
+                                        <i class="fas fa-plus"></i>
+                                        New Project
+                                    </button>
+                                    <button class="welcome-button" data-action="open-sample">
+                                        <i class="fas fa-folder-open"></i>
+                                        Sample Project
+                                    </button>
+                                </div>
+
+                                <div class="features">
+                                    <div class="feature">
+                                        <i class="fas fa-palette"></i>
+                                        <h3>Modern UI</h3>
+                                        <p>Beautiful dark/light themes with smooth animations</p>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-code"></i>
+                                        <h3>Syntax Highlighting</h3>
+                                        <p>Full CodeMirror integration with multiple language support</p>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-eye"></i>
+                                        <h3>Live Preview</h3>
+                                        <p>Real-time preview with instant feedback</p>
+                                    </div>
+                                    <div class="feature">
+                                        <i class="fas fa-mobile-alt"></i>
+                                        <h3>Responsive</h3>
+                                        <p>Works perfectly on desktop, tablet, and mobile</p>
+                                    </div>
+                                </div>
+
+                                <div class="shortcuts">
+                                    <h3>Quick Shortcuts</h3>
+                                    <div class="shortcut-list">
+                                        <div class="shortcut">
+                                            <span class="keys"><kbd>Ctrl</kbd> + <kbd>F5</kbd></span>
+                                            <span>Run Code</span>
+                                        </div>
+                                        <div class="shortcut">
+                                            <span class="keys"><kbd>Ctrl</kbd> + <kbd>S</kbd></span>
+                                            <span>Save Project</span>
+                                        </div>
+                                        <div class="shortcut">
+                                            <span class="keys"><kbd>Ctrl</kbd> + <kbd>N</kbd></span>
+                                            <span>New File</span>
+                                        </div>
+                                        <div class="shortcut">
+                                            <span class="keys"><kbd>F11</kbd></span>
+                                            <span>Fullscreen</span>
+                                        </div>
+                                        <div class="shortcut">
+                                            <span class="keys"><kbd>Ctrl</kbd> + <kbd>`</kbd></span>
+                                            <span>Toggle Console</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Code Editors (will be created dynamically) -->
+                    </div>
+
+                    <!-- Editor Status Bar -->
+                    <div class="status-bar" id="status-bar">
+                        <div class="status-left">
+                            <span class="status-item" id="line-col-info">Ln 1, Col 1</span>
+                            <span class="status-item" id="file-type">HTML</span>
+                            <span class="status-item" id="encoding">UTF-8</span>
+                        </div>
+                        <div class="status-right">
+                            <span class="status-item" id="word-count">0 words</span>
+                            <span class="status-item" id="char-count">0 chars</span>
+                            <span class="status-item status-clickable" id="theme-switcher">🌙 Dark</span>
+                            <span class="status-item status-clickable" id="font-size-status">14px</span>
+                        </div>
+                    </div>
+
+                    <!-- Preview Panel -->
+                    <div class="preview-panel" id="preview-panel">
+                        <div class="preview-header">
+                            <div class="preview-title">
+                                <i class="fas fa-eye"></i>
+                                Preview
+                            </div>
+                            <div class="preview-actions">
+                                <button class="preview-action" data-action="refresh-preview" title="Refresh">
+                                    <i class="fas fa-sync"></i>
+                                </button>
+                                <button class="preview-action" data-action="open-preview" title="Open in New Tab">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </button>
+                                <button class="preview-action" data-action="toggle-preview" title="Toggle Preview">
+                                    <i class="fas fa-eye-slash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="preview-content">
+                            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Console Panel -->
+            <div class="console-panel" id="console-panel">
+                <div class="console-header">
+                    <div class="console-tabs">
+                        <div class="console-tab active">
+                            <i class="fas fa-terminal"></i>
+                            Console
+                        </div>
+                        <div class="console-tab">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Problems <span class="badge">0</span>
+                        </div>
+                        <div class="console-tab">
+                            <i class="fas fa-info-circle"></i>
+                            Output
+                        </div>
+                    </div>
+                    <div class="console-actions">
+                        <button class="console-action" data-action="clear-console" title="Clear Console">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="console-action" data-action="toggle-console" title="Toggle Console">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="console-content" id="console-content">
+                    <div class="console-output" id="console-output">
+                        <div class="console-message info">
+                            <span class="console-icon"><i class="fas fa-info-circle"></i></span>
+                            <span class="console-text">Welcome to Code Playground Console</span>
+                            <span class="console-time">12:00:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Palette Modal -->
+    <div class="modal-overlay" id="command-palette-modal">
+        <div class="command-palette">
+            <div class="command-input-container">
+                <i class="fas fa-terminal"></i>
+                <input type="text" id="command-input" placeholder="Type a command or search..." autocomplete="off">
+            </div>
+            <div class="command-results" id="command-results">
+                <div class="command-category">
+                    <div class="command-category-title">File Operations</div>
+                    <div class="command-item" data-command="new-file">
+                        <i class="fas fa-file-plus"></i>
+                        <span>New File</span>
+                        <kbd>Ctrl+N</kbd>
+                    </div>
+                    <div class="command-item" data-command="save-project">
+                        <i class="fas fa-save"></i>
+                        <span>Save Project</span>
+                        <kbd>Ctrl+S</kbd>
+                    </div>
+                </div>
+                <div class="command-category">
+                    <div class="command-category-title">Code Actions</div>
+                    <div class="command-item" data-command="run-code">
+                        <i class="fas fa-play"></i>
+                        <span>Run Code</span>
+                        <kbd>Ctrl+F5</kbd>
+                    </div>
+                    <div class="command-item" data-command="format-code">
+                        <i class="fas fa-magic"></i>
+                        <span>Format Code</span>
+                        <kbd>Alt+Shift+F</kbd>
+                    </div>
+                </div>
+                <div class="command-category">
+                    <div class="command-category-title">View</div>
+                    <div class="command-item" data-command="toggle-console">
+                        <i class="fas fa-terminal"></i>
+                        <span>Toggle Console</span>
+                        <kbd>Ctrl+`</kbd>
+                    </div>
+                    <div class="command-item" data-command="zen-mode">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                        <span>Zen Mode</span>
+                        <kbd>F11</kbd>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Library Manager Modal -->
+    <div class="modal-overlay" id="library-modal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-cube"></i> Library Manager</h2>
+                <button class="modal-close" data-action="close-library-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="library-tabs">
+                    <button class="library-tab active" data-tab="popular">Popular</button>
+                    <button class="library-tab" data-tab="css">CSS Frameworks</button>
+                    <button class="library-tab" data-tab="js">JavaScript Libraries</button>
+                    <button class="library-tab" data-tab="icons">Icons & Fonts</button>
+                    <button class="library-tab" data-tab="custom">Custom CDN</button>
+                </div>
+                
+                <div class="library-content">
+                    <div class="library-panel active" id="popular-libraries">
+                        <div class="library-grid">
+                            <div class="library-card" data-library="bootstrap">
+                                <h3>Bootstrap 5</h3>
+                                <p>Popular CSS framework</p>
+                                <div class="library-actions">
+                                    <button class="btn primary">Add CSS</button>
+                                    <button class="btn secondary">Add JS</button>
+                                </div>
+                            </div>
+                            <div class="library-card" data-library="jquery">
+                                <h3>jQuery</h3>
+                                <p>Fast JavaScript library</p>
+                                <div class="library-actions">
+                                    <button class="btn primary">Add Library</button>
+                                </div>
+                            </div>
+                            <div class="library-card" data-library="fontawesome">
+                                <h3>Font Awesome</h3>
+                                <p>Icon library</p>
+                                <div class="library-actions">
+                                    <button class="btn primary">Add Icons</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="active-libraries">
+                    <h3>Active Libraries</h3>
+                    <div id="active-libraries-list">
+                        <div class="active-library">
+                            <span>Font Awesome 6.4.0</span>
+                            <button class="remove-library" data-library="fontawesome">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Search Modal -->
+    <div class="modal-overlay" id="file-search-modal">
+        <div class="search-modal">
+            <div class="search-input-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="file-search-input" placeholder="Search files..." autocomplete="off">
+            </div>
+            <div class="search-results" id="file-search-results">
+                <!-- Results will be populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Template Selector Modal -->
+    <div class="modal-overlay" id="template-modal">
+        <div class="modal large">
+            <div class="modal-header">
+                <h2><i class="fas fa-layer-group"></i> Project Templates</h2>
+                <button class="modal-close" data-action="close-template-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="template-grid">
+                    <div class="template-card" data-template="blank">
+                        <div class="template-preview">
+                            <i class="fas fa-file-code"></i>
+                        </div>
+                        <h3>Blank Project</h3>
+                        <p>Start with empty HTML, CSS, and JS files</p>
+                        <button class="btn primary">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="bootstrap">
+                        <div class="template-preview">
+                            <i class="fab fa-bootstrap"></i>
+                        </div>
+                        <h3>Bootstrap Starter</h3>
+                        <p>Bootstrap 5 with responsive grid</p>
+                        <button class="btn primary">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="landing">
+                        <div class="template-preview">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3>Landing Page</h3>
+                        <p>Modern landing page template</p>
+                        <button class="btn primary">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="dashboard">
+                        <div class="template-preview">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h3>Dashboard</h3>
+                        <p>Admin dashboard with charts</p>
+                        <button class="btn primary">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="game">
+                        <div class="template-preview">
+                            <i class="fas fa-gamepad"></i>
+                        </div>
+                        <h3>HTML5 Game</h3>
+                        <p>Canvas-based game starter</p>
+                        <button class="btn primary">Use Template</button>
+                    </div>
+                    
+                    <div class="template-card" data-template="portfolio">
+                        <div class="template-preview">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>Portfolio</h3>
+                        <p>Personal portfolio website</p>
+                        <button class="btn primary">Use Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="modal-close" data-action="close-settings">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>Appearance</h3>
+                    <div class="setting">
+                        <label>Theme</label>
+                        <select id="theme-select">
+                            <option value="dark">Dark</option>
+                            <option value="light">Light</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label>Font Size</label>
+                        <div class="font-size-control">
+                            <button class="font-btn" data-action="decrease-font">-</button>
+                            <span id="font-size-display">14px</span>
+                            <button class="font-btn" data-action="increase-font">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Editor</h3>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="word-wrap" checked>
+                            Word Wrap
+                        </label>
+                    </div>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="line-numbers" checked>
+                            Line Numbers
+                        </label>
+                    </div>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="auto-save" checked>
+                            Auto Save
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Preview</h3>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="auto-run" checked>
+                            Auto Run
+                        </label>
+                    </div>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="live-preview" checked>
+                            Live Preview
+                        </label>
+                    </div>
+                    <div class="setting">
+                        <label>Theme</label>
+                        <select id="editor-theme">
+                            <option value="monokai">Monokai</option>
+                            <option value="dracula">Dracula</option>
+                            <option value="material">Material</option>
+                            <option value="eclipse">Eclipse</option>
+                            <option value="default">Default</option>
+                        </select>
+                    </div>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="code-folding" checked>
+                            Code Folding
+                        </label>
+                    </div>
+                    <div class="setting">
+                        <label>
+                            <input type="checkbox" id="error-linting" checked>
+                            Error Linting
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary" data-action="reset-settings">Reset</button>
+                <button class="btn primary" data-action="save-settings">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-item" data-action="new-file">
+            <i class="fas fa-file-plus"></i>
+            New File
+        </div>
+        <div class="context-item" data-action="new-folder">
+            <i class="fas fa-folder-plus"></i>
+            New Folder
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item" data-action="rename">
+            <i class="fas fa-edit"></i>
+            Rename
+        </div>
+        <div class="context-item" data-action="delete">
+            <i class="fas fa-trash"></i>
+            Delete
+        </div>
+        <div class="context-separator"></div>
+        <div class="context-item" data-action="copy-path">
+            <i class="fas fa-copy"></i>
+            Copy Path
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>Initializing Code Playground...</p>
+        </div>
+    </div>
+
+    <!-- External Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/edit/closetag.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/show-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/html-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/css-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/hint/javascript-hint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/comment/comment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/fold/foldcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/fold/foldgutter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/fold/brace-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/fold/xml-fold.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/lint/lint.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/search/search.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/search/searchcursor.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/dialog/dialog.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/addon/dialog/dialog.css"></script>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+</body>
+</html>
