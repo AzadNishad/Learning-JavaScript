@@ -125,8 +125,8 @@ function checkYearAndMonth(year, month) {
 
     let daysInMonth
     if (month === 2) {
-        daysInMonth = leapMonth ? 29 : 28
-    } else if (daysInMonth === 4 || daysInMonth === 6 || daysInMonth === 9 || daysInMonth === 11) {
+        daysInMonth = leapYear ? 29 : 28
+    } else if (month === 4 || month === 6 || month === 9 || month === 11) {
         daysInMonth = 30
     } else {
         daysInMonth = 31

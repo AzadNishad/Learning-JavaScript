@@ -4,13 +4,13 @@ export default function fibonacci(n) {
         fib[i] = fib[i - 1] + fib[i - 2];
     }
 
-    return fib.slice(0, n);
+    return fib;
 }
 
 // other way to do it
 export function fibonacci2(n) { 
     let n1 = 0, n2 = 1, nxtN;
-    let i = 1;
+    let i = 0;
     let fibSeries = [];
     if(n < 1) return;
     console.log('Fibonacci Series:');
@@ -27,4 +27,4 @@ export function fibonacci2(n) {
 
 // Example usage:
 // console.log(fibonacci(10));
-// console.log(fibonacci2(10));
+console.log(fibonacci2(10));
