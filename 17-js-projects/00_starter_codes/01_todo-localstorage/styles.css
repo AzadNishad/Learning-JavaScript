@@ -87,6 +87,7 @@ li button {
   color: white;
   border-radius: 5px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 li button:hover {
